@@ -192,7 +192,7 @@ class BulkSenderPage(ctk.CTkFrame):
         )
         self._name_col_menu.grid(row=1, column=1, sticky="ew", padx=(PAD["sm"], 0))
 
-        # Start row
+        # Start / stop row range
         row_frame = ctk.CTkFrame(card, fg_color="transparent")
         row_frame.pack(fill="x", padx=PAD["lg"], pady=(PAD["sm"], 0))
         ctk.CTkLabel(row_frame, text="Start Sending From Row:", font=FONT["sm"], text_color=C["txt2"]).pack(
@@ -208,8 +208,34 @@ class BulkSenderPage(ctk.CTkFrame):
             text_color=C["txt"],
             font=FONT["sm"],
         ).pack(side="left", padx=PAD["sm"])
+
+        stop_frame = ctk.CTkFrame(card, fg_color="transparent")
+        stop_frame.pack(fill="x", padx=PAD["lg"], pady=(PAD["xs"], 0))
+        ctk.CTkLabel(stop_frame, text="Stop Sending At Row:", font=FONT["sm"], text_color=C["txt2"]).pack(
+            side="left"
+        )
+        self._stop_row_var = ctk.StringVar(value="")
+        ctk.CTkEntry(
+            stop_frame,
+            textvariable=self._stop_row_var,
+            width=70,
+            fg_color=C["input"],
+            border_color=C["border"],
+            text_color=C["txt"],
+            font=FONT["sm"],
+            placeholder_text="End",
+        ).pack(side="left", padx=PAD["sm"])
+        ctk.CTkLabel(
+            stop_frame,
+            text="(leave blank to send through the last row)",
+            font=FONT["xs"],
+            text_color=C["txt3"],
+        ).pack(side="left")
+
+        preview_frame = ctk.CTkFrame(card, fg_color="transparent")
+        preview_frame.pack(fill="x", padx=PAD["lg"], pady=(PAD["xs"], 0))
         ctk.CTkButton(
-            row_frame,
+            preview_frame,
             text="Preview",
             font=FONT["btn"],
             fg_color=C["accent_m"],
@@ -662,6 +688,7 @@ class BulkSenderPage(ctk.CTkFrame):
         self._name_col_menu.configure(values=name_opts)
         self._name_col_var.set(name_col if name_col else "None")
 
+        self._stop_row_var.set(str(self.excel_svc.get_total_rows()))
         self._refresh_preview()
 
     def _refresh_preview(self):
@@ -675,11 +702,23 @@ class BulkSenderPage(ctk.CTkFrame):
         except ValueError:
             start_row = 1
 
+        stop_raw = self._stop_row_var.get().strip()
+        stop_row = None
+        if stop_raw:
+            try:
+                stop_row = int(stop_raw)
+            except ValueError:
+                stop_row = None
+
         country_code = ""
         if self.db:
             country_code = self.db.get_setting("country_code", "")
 
-        preview = self.excel_svc.get_preview(phone_col, name_col, start_row, country_code)
+        preview = self.excel_svc.get_preview(
+            phone_col, name_col, start_row, country_code, stop_row=stop_row
+        )
+        if preview.get("error"):
+            mb.showwarning("Row Range", preview["error"])
         self._contacts = preview.get("valid", [])
         self._total_lbl.configure(text=str(preview.get("total", 0)))
         self._valid_lbl.configure(text=str(len(preview.get("valid", []))))
@@ -775,6 +814,8 @@ class BulkSenderPage(ctk.CTkFrame):
                 "Click Stop first, then Start a new one.",
             )
             return
+
+        self._refresh_preview()
 
         if not self._contacts:
             mb.showwarning("No Contacts", "Please upload a file and ensure there are valid contacts.")

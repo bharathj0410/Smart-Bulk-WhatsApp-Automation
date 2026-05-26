@@ -47,17 +47,33 @@ class ExcelService:
         name_col: str | None,
         start_row: int,
         country_code: str = "",
+        stop_row: int | None = None,
     ) -> dict:
         """
-        Validate contacts starting from start_row (1-indexed, inclusive).
+        Validate contacts from start_row through stop_row (1-indexed, inclusive).
+        If stop_row is None or 0, all rows from start_row to the end are included.
         Returns a summary dict with lists of valid/invalid contacts.
         """
         if self.df is None:
             return {"total": 0, "valid": [], "invalid": [], "error": "No file loaded"}
 
-        # Slice from start_row (convert to 0-based index)
-        start_idx = max(0, start_row - 1)
-        subset = self.df.iloc[start_idx:].copy()
+        total_rows = len(self.df)
+        start_idx = max(0, min(start_row - 1, total_rows))
+
+        if stop_row is None or stop_row <= 0:
+            end_idx = total_rows
+        else:
+            end_idx = min(stop_row, total_rows)
+
+        if end_idx < start_idx:
+            return {
+                "total": 0,
+                "valid": [],
+                "invalid": [],
+                "error": "Stop row must be greater than or equal to start row",
+            }
+
+        subset = self.df.iloc[start_idx:end_idx].copy()
 
         if phone_col not in subset.columns:
             return {
