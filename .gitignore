@@ -1,0 +1,35 @@
+# ── Sensitive / runtime data ──────────────────────────────
+chrome_data/
+data/*.db
+data/exports/
+data/*.xlsx
+data/*.xls
+data/*.csv
+.env
+.env.*
+
+# ── Python ────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+*.spec
+
+# ── Virtual environments ──────────────────────────────────
+venv/
+.venv/
+env/
+
+# ── IDE / OS ──────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ── Logs ──────────────────────────────────────────────────
+*.log

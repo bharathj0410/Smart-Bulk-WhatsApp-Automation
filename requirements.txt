@@ -1,0 +1,20 @@
+# BulkWave Pro - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# ── UI ─────────────────────────────────────────────────────────────────────────
+customtkinter>=5.2.2
+Pillow>=10.0.0
+
+# ── Data handling ──────────────────────────────────────────────────────────────
+pandas>=2.0.0
+openpyxl>=3.1.0
+
+# ── WhatsApp Web automation ────────────────────────────────────────────────────
+selenium>=4.15.0
+webdriver-manager>=4.0.0
+
+# ── Utilities ──────────────────────────────────────────────────────────────────
+pyperclip>=1.8.2
+
+# ── EXE packaging (install separately, not needed at runtime) ─────────────────
+# pyinstaller>=6.3.0
