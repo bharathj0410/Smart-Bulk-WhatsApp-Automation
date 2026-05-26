@@ -26,8 +26,10 @@ class ExcelService:
             else:
                 self.df = pd.read_excel(path, dtype=str, keep_default_na=False)
 
-            # Strip whitespace from all string cells
-            self.df = self.df.map(lambda x: x.strip() if isinstance(x, str) else x)
+            # Strip whitespace from all string cells (Series.map works on all pandas 2.x)
+            self.df = self.df.apply(
+                lambda col: col.map(lambda x: x.strip() if isinstance(x, str) else x)
+            )
 
             self.file_path = path
             self.columns = list(self.df.columns)

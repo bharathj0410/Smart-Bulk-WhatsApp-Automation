@@ -124,6 +124,7 @@ class CampaignService:
         max_delay: float,
         auto_retry: bool,
         max_retries: int,
+        turbo_mode: bool = False,
     ):
         total = len(contacts)
         sent = 0
@@ -188,10 +189,11 @@ class CampaignService:
                 # responds immediately instead of being blocked by a long sleep.
                 if i < total - 1 and not self._stop_event.is_set():
                     delay = random.uniform(min_delay, max_delay)
-                    self._log("INFO", f"Waiting {delay:.1f}s before next message...")
-                    end_time = time.time() + delay
-                    while time.time() < end_time and not self._stop_event.is_set():
-                        time.sleep(min(0.5, end_time - time.time()))
+                    if delay > 0.05:
+                        self._log("INFO", f"Waiting {delay:.1f}s before next message...")
+                        end_time = time.time() + delay
+                        while time.time() < end_time and not self._stop_event.is_set():
+                            time.sleep(min(0.5, end_time - time.time()))
 
         except Exception as exc:
             # Catch unexpected errors so the finally block always runs
