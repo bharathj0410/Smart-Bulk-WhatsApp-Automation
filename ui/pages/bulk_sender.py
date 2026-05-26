@@ -430,7 +430,7 @@ class BulkSenderPage(ctk.CTkFrame):
             font=FONT["sm"],
             text_color=C["txt2"],
             fg_color=C["accent"],
-            hover_color=C["accent_hover"],
+            hover_color=C["accent_h"],
             command=self._on_turbo_toggle,
         ).pack(side="left", padx=(0, PAD["md"]))
 
